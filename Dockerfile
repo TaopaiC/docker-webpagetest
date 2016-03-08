@@ -71,7 +71,7 @@ COPY settings.ini /var/www/html/settings/settings.ini
 
 COPY apache_default.conf /etc/apache2/conf-enabled/000_default.conf
 
-VOLUME ["/var/www/html/results", "/data/archive"]
+VOLUME ["/var/www/html/results", "/var/www/html/dat" "/data/archive"]
 EXPOSE 80
 
 CMD /bin/bash -c '\
