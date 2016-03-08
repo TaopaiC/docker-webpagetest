@@ -10,6 +10,7 @@ RUN apt-get update && \
 ENV WPT_VERSION 2.19
 
 RUN DIR=$(mktemp -d) && \
+  rm /var/www/html/index.html | true && \
   cd ${DIR} && \
   curl -L -Os https://github.com/WPO-Foundation/webpagetest/archive/WebPageTest-${WPT_VERSION}.tar.gz  && \
   tar xvf WebPageTest-${WPT_VERSION}.tar.gz && \
