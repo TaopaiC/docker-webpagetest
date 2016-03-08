@@ -7,6 +7,17 @@ RUN apt-get update && \
                        ffmpeg curl && \
     rm -rf /var/lib/apt/lists/*
 
+RUN echo 'deb http://apt.newrelic.com/debian/ newrelic non-free' | tee /etc/apt/sources.list.d/newrelic.list && \
+    curl https://download.newrelic.com/548C16BF.gpg | apt-key add - && \
+    echo newrelic-php5 newrelic-php5/application-name string "NEWRELIC_APP_NAME" | debconf-set-selections && \
+    echo newrelic-php5 newrelic-php5/license-key string "NEWRELIC_LICENSE_KEY" | debconf-set-selections && \
+    apt-get update && \
+    apt-get install -y newrelic-php5 && \
+    rm -rf /var/lib/apt/lists/* && \
+    php5dismod newrelic
+
+ENV NEWRELIC_APP_NAME "WebPageTest"
+ENV NEWRELIC_LICENSE_KEY ""
 ENV WPT_VERSION 2.19
 
 RUN DIR=$(mktemp -d) && \
@@ -63,4 +74,10 @@ COPY apache_default.conf /etc/apache2/conf-enabled/000_default.conf
 VOLUME ["/var/www/html/results", "/data/archive"]
 EXPOSE 80
 
-CMD /bin/bash -c 'chown www-data:www-data /var/www/html/results && source /etc/apache2/envvars && exec /usr/sbin/apache2 -DFOREGROUND'
+CMD /bin/bash -c '\
+  [ ! -z "$NEWRELIC_LICENSE_KEY" ] && sed -ri "\
+    s/newrelic.appname =.*/newrelic.appname = \"$NEWRELIC_APP_NAME\"/g; \
+    s/newrelic.license =.*/newrelic.license = \"$NEWRELIC_LICENSE_KEY\"/g; \
+  " /etc/php5/mods-available/newrelic.ini && php5enmod newrelic || php5dismod newrelic && \
+  chown www-data:www-data /var/www/html/results && \
+  source /etc/apache2/envvars && exec /usr/sbin/apache2 -DFOREGROUND'
