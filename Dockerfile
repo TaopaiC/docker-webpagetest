@@ -57,7 +57,11 @@ COPY locations.ini /var/www/html/settings/locations.ini
 COPY connectivity.ini /var/www/html/settings/connectivity.ini
 COPY settings.ini /var/www/html/settings/settings.ini
 
+COPY apache_default /etc/apache2/conf-enabled/000_default
+COPY run /usr/local/bin/run
+RUN chmod +x /usr/local/bin/run
+
 VOLUME ["/var/www/html/results", "/data/archive"]
 EXPOSE 80
 
-CMD ["/usr/sbin/httpd", "-k", "start", "-D", "FOREGROUND"]
+CMD ["/usr/local/bin/run"]
