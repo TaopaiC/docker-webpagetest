@@ -16,8 +16,8 @@ RUN echo 'deb http://apt.newrelic.com/debian/ newrelic non-free' | tee /etc/apt/
     rm -rf /var/lib/apt/lists/* && \
     php5dismod newrelic
 
-ENV NEWRELIC_APP_NAME
-ENV NEWRELIC_LICENSE_KEY
+ENV NEWRELIC_APP_NAME "WebPageTest"
+ENV NEWRELIC_LICENSE_KEY ""
 ENV WPT_VERSION 2.19
 
 RUN DIR=$(mktemp -d) && \
@@ -75,7 +75,7 @@ VOLUME ["/var/www/html/results", "/data/archive"]
 EXPOSE 80
 
 CMD /bin/bash -c '\
-  [ -n "$NEWRELIC_LICENSE_KEY" ] && sed -ri "\
+  [ ! -z "$NEWRELIC_LICENSE_KEY" ] && sed -ri "\
     s/newrelic.appname =.*/newrelic.appname = \"$NEWRELIC_APP_NAME\"/g; \
     s/newrelic.license =.*/newrelic.license = \"$NEWRELIC_LICENSE_KEY\"/g; \
   " /etc/php5/mods-available/newrelic.ini && php5enmod newrelic || php5dismod newrelic && \
